@@ -34,7 +34,7 @@ def init_db():
         s = ', '.join(services_country)
         companies.append(
             [index, reference_code, company_name_first, company_name_second, country, s, today])
-        print(companies)
+        
         
     
     cur.executemany(
