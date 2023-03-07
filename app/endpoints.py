@@ -10,6 +10,7 @@ def company_select():
     cur = con.cursor()
     res = cur.execute("SELECT * FROM PSDMD LIMIT 3")
     companies_list = res.fetchall()
+    print(companies_list)
     companies = []
     for company in companies_list:
         
@@ -17,7 +18,9 @@ def company_select():
                         "ref_code": company[1],
                         "name_lat": company[2],
                         "name_second": company[3],
-                        "country": company[4]}
+                        "country": company[4],
+                        "services": company[5],
+                        "date": company[6]}
         companies.append(company_dict)
-    
+       
     return companies
