@@ -1,19 +1,49 @@
 import json
 import sqlite3
 import datetime
+import requests
+import shutil
+import zipfile
+from datetime import date
+import os
+
+today = date.today().strftime('%Y%m%d')
 
 
-def init_db():
+def download_psdmd_file(date_str):
+
+    url = f'https://euclid.eba.europa.eu/register/downloads/PSDMD/{date_str}/download-PSDMD-{date_str}0800.zip'
+
+    archive_name = f'download/download-PSDMD-{date_str}.zip'
+
+    local_filename = archive_name
+    with requests.get(url, stream=True) as r:
+        with open(local_filename, 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+
+    with zipfile.ZipFile(archive_name, 'r') as zip_ref:
+        zip_ref.extractall('download/')
+
+
+def cleanup(date_str):
+
+    folder = 'download'
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        if date_str not in filename:
+            os.remove(file_path)
+
+
+def init_db(date_str):
 
     con = sqlite3.connect("PSDMD.db")
     cur = con.cursor()
     cur.execute("DROP TABLE if exists PSDMD")
     cur.execute("CREATE TABLE PSDMD (id INT, reference_code INT, company_name_first TEXT, company_name_second TEXT, country TEXT, services_country TEXT, up_date DATE)")
-    
 
-    data = json.load(open("download-PSDMD-202302280800.json"))
+    data = json.load(open(f"download/download-PSDMD-{date_str}0800.json"))
     companies = []
-    today = datetime.date.today()
+
     for index, company in enumerate(data[1]):
         if "Properties" not in company:
             continue
@@ -33,10 +63,8 @@ def init_db():
                 services_country.append(item)
         s = ', '.join(services_country)
         companies.append(
-            [index, reference_code, company_name_first, company_name_second, country, s, today])
-        
-        
-    
+            [index, reference_code, company_name_first, company_name_second, country, s, date_str])
+
     cur.executemany(
         'INSERT INTO PSDMD (id, reference_code, company_name_first, company_name_second, country, services_country, up_date) values (?, ?, ?, ?, ?, ?, ?)', companies)
     con.commit()
@@ -58,4 +86,6 @@ def company_name_check(company_names: list[str] | str) -> tuple[str, str]:
 
 
 if __name__ == "__main__":
-    init_db()
+    download_psdmd_file(today)
+    cleanup(today)
+    init_db(today)
