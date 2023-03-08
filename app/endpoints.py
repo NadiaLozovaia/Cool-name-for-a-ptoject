@@ -8,12 +8,12 @@ def hello_world():
 def company_select():
     con = sqlite3.connect("PSDMD.db")
     cur = con.cursor()
-    res = cur.execute("SELECT * FROM PSDMD LIMIT 3")
+    res = cur.execute("SELECT * FROM PSDMD LIMIT 5")
     companies_list = res.fetchall()
-    print(companies_list)
+
     companies = []
     for company in companies_list:
-        
+
         company_dict = {"id": company[0],
                         "ref_code": company[1],
                         "name_lat": company[2],
@@ -22,5 +22,23 @@ def company_select():
                         "services": company[5],
                         "date": company[6]}
         companies.append(company_dict)
-       
+
     return companies
+
+
+def info_company(id_company):
+    con = sqlite3.connect("PSDMD.db")
+    cur = con.cursor()
+    res = cur.execute("SELECT * FROM PSDMD WHERE id = ?", id_company)
+    company = res.fetchone()
+
+    company_dict = {"id": company[0],
+                    "ref_code": company[1],
+                    "name_lat": company[2],
+                    "name_second": company[3],
+                    "country": company[4],
+                    "services": company[5],
+                    "date": company[6]}
+    
+    return company_dict
+

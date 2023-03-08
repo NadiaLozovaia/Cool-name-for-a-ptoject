@@ -8,20 +8,11 @@ from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 
 from fastapi.templating import Jinja2Templates
 
-from app.endpoints import company_select
+from app.endpoints import company_select, info_company
 
 import sqlite3
 
 app = FastAPI()
-
-# con: sqlite3.Connection = None  # type: ignore
-# con = sqlite3.connect("PSDMD.db")
-# @app.on_event("startup")
-# async def startup():
-#     global con
-#     con = sqlite3.connect("PSDMD.db")
-
-
 
 
 # app.mount("/static", StaticFiles(directory="static", html=True), name="static")
@@ -33,11 +24,19 @@ templates = Jinja2Templates(directory="static/templates")
 #     users = get_users()
 #     return templates.TemplateResponse("item.html", {"request": request, "users": users})
 
+@app.get("/companies", response_class=HTMLResponse)
+async def companies_list_all(request: Request):
+    selected_companies = company_select()
+    return templates.TemplateResponse("companies.html", {"request": request, 'companies': selected_companies})
 
+@app.get("/company/{id}", response_class=HTMLResponse)
+async def one_company(request: Request, id):
+    info = info_company(id)
+    return templates.TemplateResponse("one_company.html", {"request": request, 'company': info})
 
-@app.get("/company", response_class=JSONResponse)
-def read_companies():
-    return company_select()
+# @app.get("/company", response_class=JSONResponse)
+# def read_companies():
+#     return company_select()
 
 @app.get("/second")
 async def main():
