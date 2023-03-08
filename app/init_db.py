@@ -89,3 +89,4 @@ if __name__ == "__main__":
     download_psdmd_file(today)
     cleanup(today)
     init_db(today)
+

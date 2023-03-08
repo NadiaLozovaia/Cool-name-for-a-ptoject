@@ -1,0 +1,12 @@
+<html>
+<head>
+    <title>Item Details</title>
+   
+</head>
+<body>
+    {% for company in companies %} 
+    <h1><a href="/company/{{company.id}}">{{company.name_lat}}</a></h1>
+    {% endfor %}
+    
+</body>
+</html>
