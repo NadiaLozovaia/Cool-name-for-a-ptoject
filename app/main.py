@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 
 from fastapi.templating import Jinja2Templates
 
-from app.endpoints import company_select, info_company
+from app.endpoints import company_select, info_company, company_list_country, company_by_ref_code
 
 import sqlite3
 
@@ -41,3 +41,13 @@ async def one_company(request: Request, id):
 @app.get("/second")
 async def main():
     return FileResponse("static/html/index.html")
+
+@app.get("/api/companies")
+async def api_companies_list(country:str):
+    companies = company_list_country(country)
+    return companies
+
+@app.get("/api/company")
+async def api_company_by_ref_code(ref_code:str):
+    company = company_by_ref_code(ref_code)
+    return company
